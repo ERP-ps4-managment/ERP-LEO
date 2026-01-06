@@ -12,193 +12,128 @@
             --text-main: #c9d1d9;
             --admin-gold: #d29922;
             --error-red: #f85149;
+            --success-green: #238636;
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
-            height: 100%;
-            overflow: hidden;
+            height: 100%; overflow: hidden;
         }
 
         /* --- Gatekeeper Overlay --- */
         #gatekeeper {
-            position: fixed;
-            inset: 0;
+            position: fixed; inset: 0;
             background: rgba(11, 14, 20, 0.98);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
             z-index: 1000;
-            transition: opacity 0.6s ease; /* For the fade-out */
+            transition: opacity 0.6s ease;
         }
 
         .login-card {
             background: var(--bg-sidebar);
-            padding: 2rem;
-            border-radius: 8px;
+            padding: 2rem; border-radius: 8px;
             border: 1px solid var(--accent-blue);
-            width: 350px;
-            text-align: center;
+            width: 350px; text-align: center;
             box-shadow: 0 0 20px rgba(33, 139, 255, 0.2);
         }
 
-        .login-logo {
-            width: 100px;
-            margin-bottom: 15px;
-        }
+        /* Fixed filename here */
+        .login-logo { width: 100px; margin-bottom: 15px; }
 
         .login-card h2 { color: var(--accent-blue); margin-bottom: 1.5rem; }
         
         select, input, button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-            border: 1px solid #30363d;
-            background: #0d1117;
-            color: white;
-            box-sizing: border-box;
+            width: 100%; padding: 10px; margin: 10px 0;
+            border-radius: 4px; border: 1px solid #30363d;
+            background: #0d1117; color: white; box-sizing: border-box;
         }
 
-        .login-btn {
-            background: var(--accent-blue);
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
-        }
-
+        .login-btn { background: var(--accent-blue); font-weight: bold; cursor: pointer; border: none; }
         .login-btn:hover { background: #388bfd; }
 
         /* --- Dashboard Layout & Animation --- */
-        #dashboard {
-            display: none; /* Hidden until login */
-            height: 100vh;
-            opacity: 0;
-        }
+        #dashboard { display: none; height: 100vh; opacity: 0; }
 
-        /* This class is added by JS after login */
         .animate-in {
             display: flex !important;
             animation: slideUpFade 0.8s ease forwards;
         }
 
         @keyframes slideUpFade {
-            from { 
-                opacity: 0; 
-                transform: translateY(30px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .sidebar {
-            width: 250px;
-            background: var(--bg-sidebar);
+            width: 250px; background: var(--bg-sidebar);
             border-right: 1px solid #30363d;
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
+            display: flex; flex-direction: column; padding: 20px 0;
         }
 
-        .sidebar-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .sidebar-logo {
-            width: 50px;
-            margin-bottom: 10px;
-        }
+        .sidebar-header { text-align: center; margin-bottom: 20px; }
+        /* Fixed filename here */
+        .sidebar-logo { width: 50px; margin-bottom: 10px; }
 
         .sidebar h3 {
-            font-size: 0.9rem;
-            color: var(--accent-blue);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin: 0;
+            font-size: 0.9rem; color: var(--accent-blue);
+            text-transform: uppercase; letter-spacing: 2px; margin: 0;
         }
 
         .nav-btn {
-            background: transparent;
-            border: none;
-            text-align: left;
-            padding: 15px 25px;
-            color: var(--text-main);
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 1rem;
+            background: transparent; border: none; text-align: left;
+            padding: 15px 25px; color: var(--text-main);
+            cursor: pointer; transition: 0.2s; font-size: 1rem;
         }
 
         .nav-btn:hover, .nav-btn.active {
             background: rgba(33, 139, 255, 0.1);
-            color: var(--accent-blue);
-            border-left: 4px solid var(--accent-blue);
+            color: var(--accent-blue); border-left: 4px solid var(--accent-blue);
         }
 
-        .main-content {
-            flex-grow: 1;
-            padding: 40px;
-            overflow-y: auto;
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; }
+
+        /* --- Status Bar --- */
+        .status-bar {
+            background: #0d1117; padding: 10px 30px;
+            border-bottom: 1px solid #30363d;
+            display: flex; justify-content: space-between;
+            font-size: 0.8rem; font-family: monospace;
         }
+
+        .content-area { padding: 40px; overflow-y: auto; flex-grow: 1; }
 
         .content-card {
-            background: var(--bg-sidebar);
-            padding: 30px;
-            border-radius: 8px;
-            border: 1px solid #30363d;
-            min-height: 400px;
-            position: relative;
+            background: var(--bg-sidebar); padding: 30px;
+            border-radius: 8px; border: 1px solid #30363d;
+            min-height: 400px; position: relative;
         }
 
         /* --- Admin Elements --- */
         .admin-badge {
-            display: none;
-            background: var(--admin-gold);
-            color: black;
-            padding: 2px 8px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            border-radius: 4px;
-            margin-left: 10px;
+            display: none; background: var(--admin-gold); color: black;
+            padding: 2px 8px; font-size: 0.7rem; font-weight: bold;
+            border-radius: 4px; margin-left: 10px;
         }
 
         .edit-btn {
-            display: none;
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--admin-gold);
-            border: none;
-            padding: 5px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
+            display: none; position: absolute; top: 20px; right: 20px;
+            background: var(--admin-gold); border: none;
+            padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;
         }
 
         textarea {
-            width: 100%;
-            height: 300px;
-            background: #0d1117;
-            color: var(--text-main);
-            border: 1px solid var(--admin-gold);
-            padding: 10px;
-            font-family: monospace;
+            width: 100%; height: 300px; background: #0d1117;
+            color: var(--text-main); border: 1px solid var(--admin-gold);
+            padding: 10px; font-family: monospace;
         }
 
         .save-btn {
-            background: #238636;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            margin-top: 10px;
-            cursor: pointer;
-            border-radius: 4px;
+            background: var(--success-green); color: white;
+            border: none; padding: 10px 20px; margin-top: 10px;
+            cursor: pointer; border-radius: 4px;
         }
 
         #error-msg { color: var(--error-red); font-size: 0.8rem; margin-top: 10px; }
@@ -208,7 +143,7 @@
 
     <div id="gatekeeper">
         <div class="login-card">
-            <img src="logo.png.png" alt="Logo" class="login-logo">
+            <img src="logo.png" alt="Logo" class="login-logo">
             <h2>LEO TERMINAL</h2>
             <select id="roleSelect">
                 <option value="player">Player</option>
@@ -223,7 +158,7 @@
     <div id="dashboard">
         <div class="sidebar">
             <div class="sidebar-header">
-                <img src="logo.png.png" alt="Logo" class="sidebar-logo">
+                <img src="logo.png" alt="Logo" class="sidebar-logo">
                 <h3>Operations <span id="adminBadge" class="admin-badge">ADMIN</span></h3>
             </div>
             <button class="nav-btn active" onclick="showSection('callsigns')">Call Signs</button>
@@ -234,16 +169,22 @@
         </div>
 
         <div class="main-content">
-            <div class="content-card">
-                <button id="editBtn" class="edit-btn" onclick="toggleEdit()">EDIT SECTION</button>
-                <h1 id="sectionTitle">Call Signs</h1>
-                <hr style="border: 0; border-top: 1px solid #30363d; margin: 20px 0;">
-                
-                <div id="displayArea"></div>
+            <div class="status-bar">
+                <span>SYSTEM STATUS: <span style="color:var(--success-green)">ONLINE</span></span>
+                <span id="liveClock">00:00:00 AM</span>
+            </div>
+            <div class="content-area">
+                <div class="content-card">
+                    <button id="editBtn" class="edit-btn" onclick="toggleEdit()">EDIT SECTION</button>
+                    <h1 id="sectionTitle">Call Signs</h1>
+                    <hr style="border: 0; border-top: 1px solid #30363d; margin: 20px 0;">
+                    
+                    <div id="displayArea"></div>
 
-                <div id="editArea" style="display: none;">
-                    <textarea id="editor"></textarea><br>
-                    <button class="save-btn" onclick="saveContent()">SAVE CHANGES</button>
+                    <div id="editArea" style="display: none;">
+                        <textarea id="editor"></textarea><br>
+                        <button class="save-btn" onclick="saveContent()">SAVE CHANGES</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -264,6 +205,13 @@
             localStorage.setItem('leoData', JSON.stringify(defaultData));
         }
 
+        // Live Clock Function
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('liveClock').innerText = now.toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+
         function checkAuth() {
             const role = document.getElementById('roleSelect').value;
             const pass = document.getElementById('passInput').value;
@@ -275,23 +223,18 @@
                 (role === 'admin' && pass === 'pal1anth23')) {
                 
                 currentRole = role;
-
-                // FADE OUT LOGIN
                 gate.style.opacity = "0";
 
                 setTimeout(() => {
                     gate.style.display = 'none';
-                    
-                    // SHOW DASHBOARD WITH ANIMATION
                     dash.classList.add('animate-in');
                     
                     if(role === 'admin') {
                         document.getElementById('adminBadge').style.display = 'inline-block';
                         document.getElementById('editBtn').style.display = 'block';
                     }
-                    
                     showSection('callsigns');
-                }, 600); // 600ms matches the CSS transition time
+                }, 600);
             } else {
                 error.innerText = "INVALID ACCESS CODE";
             }
@@ -299,7 +242,6 @@
 
         function showSection(section) {
             currentSection = section;
-            
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             
             const titleMap = {
@@ -310,29 +252,22 @@
             };
 
             document.getElementById('sectionTitle').innerText = titleMap[section];
-            
             const data = JSON.parse(localStorage.getItem('leoData'));
             document.getElementById('displayArea').innerText = data[section];
-            
             document.getElementById('displayArea').style.display = 'block';
             document.getElementById('editArea').style.display = 'none';
         }
 
         function toggleEdit() {
-            const display = document.getElementById('displayArea');
-            const edit = document.getElementById('editArea');
-            const editor = document.getElementById('editor');
-
-            display.style.display = 'none';
-            edit.style.display = 'block';
-            editor.value = JSON.parse(localStorage.getItem('leoData'))[currentSection];
+            document.getElementById('displayArea').style.display = 'none';
+            document.getElementById('editArea').style.display = 'block';
+            document.getElementById('editor').value = JSON.parse(localStorage.getItem('leoData'))[currentSection];
         }
 
         function saveContent() {
             const newData = JSON.parse(localStorage.getItem('leoData'));
             newData[currentSection] = document.getElementById('editor').value;
             localStorage.setItem('leoData', JSON.stringify(newData));
-            
             showSection(currentSection);
         }
     </script>
