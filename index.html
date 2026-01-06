@@ -3,273 +3,558 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEO RP Dashboard</title>
+    <title>LEO OPERATIONS TERMINAL v2.0</title>
     <style>
+        /* --- DESIGN SYSTEM --- */
         :root {
-            --bg-dark: #0b0e14;
+            --bg-ultra-dark: #05070a;
+            --bg-card: #0d1117;
             --bg-sidebar: #161b22;
-            --accent-blue: #218bff;
-            --text-main: #c9d1d9;
+            --border-color: #30363d;
+            --accent-primary: #218bff;
+            --accent-hover: #388bfd;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
             --admin-gold: #d29922;
-            --error-red: #f85149;
-            --success-green: #238636;
+            --danger-red: #f85149;
+            --success-green: #3fb950;
+            --sidebar-width: 280px;
         }
 
+        /* --- GLOBAL RESET --- */
+        * { box-sizing: border-box; }
+        
         body, html {
-            margin: 0; padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            height: 100%; overflow: hidden;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-ultra-dark);
+            color: var(--text-primary);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            line-height: 1.6;
         }
 
-        /* --- Gatekeeper Overlay --- */
+        /* --- AUTHENTICATION OVERLAY --- */
         #gatekeeper {
-            position: fixed; inset: 0;
-            background: rgba(11, 14, 20, 0.98);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 1000;
-            transition: opacity 0.6s ease;
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #111827 0%, #05070a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .login-card {
             background: var(--bg-sidebar);
-            padding: 2rem; border-radius: 8px;
-            border: 1px solid var(--accent-blue);
-            width: 350px; text-align: center;
-            box-shadow: 0 0 20px rgba(33, 139, 255, 0.2);
+            padding: 3rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 15px rgba(33, 139, 255, 0.1);
         }
 
-        /* Fixed filename here */
-        .login-logo { width: 100px; margin-bottom: 15px; }
-
-        .login-card h2 { color: var(--accent-blue); margin-bottom: 1.5rem; }
-        
-        select, input, button {
-            width: 100%; padding: 10px; margin: 10px 0;
-            border-radius: 4px; border: 1px solid #30363d;
-            background: #0d1117; color: white; box-sizing: border-box;
+        .login-logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 8px rgba(33, 139, 255, 0.3));
         }
 
-        .login-btn { background: var(--accent-blue); font-weight: bold; cursor: pointer; border: none; }
-        .login-btn:hover { background: #388bfd; }
+        .login-card h2 {
+            margin: 0 0 0.5rem 0;
+            color: var(--accent-primary);
+            letter-spacing: 2px;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+        }
 
-        /* --- Dashboard Layout & Animation --- */
-        #dashboard { display: none; height: 100vh; opacity: 0; }
+        .login-card p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+
+        /* --- INPUT STYLING --- */
+        .form-group { margin-bottom: 1.2rem; text-align: left; }
+        .form-group label { display: block; font-size: 0.75rem; margin-bottom: 5px; color: var(--text-secondary); text-transform: uppercase; }
+
+        select, input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-ultra-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: white;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(33, 139, 255, 0.1);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            margin-top: 1rem;
+        }
+
+        .auth-button:hover { background: var(--accent-hover); }
+        .auth-button:active { transform: scale(0.98); }
+
+        #error-msg {
+            color: var(--danger-red);
+            font-size: 0.8rem;
+            margin-top: 1rem;
+            min-height: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* --- DASHBOARD STRUCTURE --- */
+        #dashboard {
+            display: none;
+            height: 100vh;
+            width: 100vw;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
 
         .animate-in {
             display: flex !important;
-            animation: slideUpFade 0.8s ease forwards;
+            opacity: 1 !important;
         }
 
-        @keyframes slideUpFade {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        /* --- SIDEBAR --- */
         .sidebar {
-            width: 250px; background: var(--bg-sidebar);
-            border-right: 1px solid #30363d;
-            display: flex; flex-direction: column; padding: 20px 0;
+            width: var(--sidebar-width);
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
         }
 
-        .sidebar-header { text-align: center; margin-bottom: 20px; }
-        /* Fixed filename here */
-        .sidebar-logo { width: 50px; margin-bottom: 10px; }
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-logo {
+            width: 70px;
+            height: auto;
+            margin-bottom: 15px;
+        }
 
         .sidebar h3 {
-            font-size: 0.9rem; color: var(--accent-blue);
-            text-transform: uppercase; letter-spacing: 2px; margin: 0;
+            font-size: 0.85rem;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 0;
+        }
+
+        .nav-container {
+            padding: 20px 0;
+            flex-grow: 1;
+            overflow-y: auto;
         }
 
         .nav-btn {
-            background: transparent; border: none; text-align: left;
-            padding: 15px 25px; color: var(--text-main);
-            cursor: pointer; transition: 0.2s; font-size: 1rem;
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 14px 25px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            border-left: 4px solid transparent;
         }
 
-        .nav-btn:hover, .nav-btn.active {
-            background: rgba(33, 139, 255, 0.1);
-            color: var(--accent-blue); border-left: 4px solid var(--accent-blue);
+        .nav-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
         }
 
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; }
-
-        /* --- Status Bar --- */
-        .status-bar {
-            background: #0d1117; padding: 10px 30px;
-            border-bottom: 1px solid #30363d;
-            display: flex; justify-content: space-between;
-            font-size: 0.8rem; font-family: monospace;
+        .nav-btn.active {
+            color: var(--accent-primary);
+            background: rgba(33, 139, 255, 0.08);
+            border-left-color: var(--accent-primary);
         }
 
-        .content-area { padding: 40px; overflow-y: auto; flex-grow: 1; }
+        .logout-btn {
+            padding: 20px 25px;
+            border-top: 1px solid var(--border-color);
+            color: var(--danger-red);
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            cursor: pointer;
+            background: transparent;
+            border-left: none;
+            border-right: none;
+            border-bottom: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .logout-btn:hover { background: rgba(248, 81, 73, 0.05); }
+
+        /* --- MAIN CONTENT --- */
+        .main-view {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-ultra-dark);
+        }
+
+        /* --- STATUS BAR --- */
+        .top-bar {
+            height: 50px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-green);
+            box-shadow: 0 0 8px var(--success-green);
+        }
+
+        /* --- CONTENT AREA --- */
+        .content-scroll {
+            padding: 40px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h1 {
+            font-size: 1.8rem;
+            margin: 0;
+            color: white;
+            letter-spacing: 1px;
+        }
 
         .content-card {
-            background: var(--bg-sidebar); padding: 30px;
-            border-radius: 8px; border: 1px solid #30363d;
-            min-height: 400px; position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 40px;
+            min-height: 500px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        /* --- Admin Elements --- */
-        .admin-badge {
-            display: none; background: var(--admin-gold); color: black;
-            padding: 2px 8px; font-size: 0.7rem; font-weight: bold;
-            border-radius: 4px; margin-left: 10px;
+        #displayArea {
+            white-space: pre-wrap;
+            font-size: 1.1rem;
+            color: var(--text-primary);
         }
 
-        .edit-btn {
-            display: none; position: absolute; top: 20px; right: 20px;
-            background: var(--admin-gold); border: none;
-            padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;
+        /* --- ADMIN CONTROLS --- */
+        .admin-controls {
+            display: none; /* Controlled by JS */
         }
 
-        textarea {
-            width: 100%; height: 300px; background: #0d1117;
-            color: var(--text-main); border: 1px solid var(--admin-gold);
-            padding: 10px; font-family: monospace;
+        .edit-trigger-btn {
+            background: var(--admin-gold);
+            color: black;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .admin-tag {
+            background: var(--admin-gold);
+            color: black;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            font-weight: 900;
+            margin-left: 10px;
+        }
+
+        #editArea textarea {
+            width: 100%;
+            height: 450px;
+            background: #05070a;
+            color: var(--success-green);
+            border: 1px solid var(--admin-gold);
+            padding: 20px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 1rem;
+            resize: vertical;
+            border-radius: 4px;
         }
 
         .save-btn {
-            background: var(--success-green); color: white;
-            border: none; padding: 10px 20px; margin-top: 10px;
-            cursor: pointer; border-radius: 4px;
+            background: var(--success-green);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-weight: bold;
+            cursor: pointer;
         }
 
-        #error-msg { color: var(--error-red); font-size: 0.8rem; margin-top: 10px; }
+        /* --- RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .sidebar { width: 80px; }
+            .sidebar h3, .nav-btn span, .sidebar-header h3 { display: none; }
+            .sidebar-logo { width: 40px; }
+            .nav-btn { justify-content: center; padding: 20px 0; }
+        }
     </style>
 </head>
 <body>
 
     <div id="gatekeeper">
         <div class="login-card">
-            <img src="logo.png" alt="Logo" class="login-logo">
-            <h2>LEO TERMINAL</h2>
-            <select id="roleSelect">
-                <option value="player">Player</option>
-                <option value="admin">Administrator</option>
-            </select>
-            <input type="password" id="passInput" placeholder="Enter Access Code">
-            <button class="login-btn" onclick="checkAuth()">AUTHENTICATE</button>
+            <img src="logo.png" alt="LEO Logo" class="login-logo" onerror="this.src='https://via.placeholder.com/100?text=LOGO'">
+            <h2>Terminal Login</h2>
+            <p>Department of Justice Secure Access</p>
+            
+            <div class="form-group">
+                <label>User Role</label>
+                <select id="roleSelect">
+                    <option value="player">Patrol Officer</option>
+                    <option value="admin">System Administrator</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Access Credentials</label>
+                <input type="password" id="passInput" placeholder="••••••••">
+            </div>
+
+            <button class="auth-button" onclick="authenticate()">Establish Uplink</button>
             <div id="error-msg"></div>
         </div>
     </div>
 
     <div id="dashboard">
-        <div class="sidebar">
+        <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="logo.png" alt="Logo" class="sidebar-logo">
-                <h3>Operations <span id="adminBadge" class="admin-badge">ADMIN</span></h3>
+                <img src="logo.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'">
+                <h3>Operations</h3>
             </div>
-            <button class="nav-btn active" onclick="showSection('callsigns')">Call Signs</button>
-            <button class="nav-btn" onclick="showSection('vehicles')">Vehicle Policy</button>
-            <button class="nav-btn" onclick="showSection('codes')">Radio Codes</button>
-            <button class="nav-btn" onclick="showSection('sops')">SOPs</button>
-            <button class="nav-btn" onclick="location.reload()" style="margin-top: auto; color: var(--error-red);">Logout</button>
-        </div>
+            
+            <nav class="nav-container">
+                <button class="nav-btn active" onclick="switchSection('callsigns', this)">
+                    <span>Call Signs</span>
+                </button>
+                <button class="nav-btn" onclick="switchSection('vehicles', this)">
+                    <span>Vehicle Policy</span>
+                </button>
+                <button class="nav-btn" onclick="switchSection('codes', this)">
+                    <span>Radio Codes</span>
+                </button>
+                <button class="nav-btn" onclick="switchSection('sops', this)">
+                    <span>Standard Ops (SOP)</span>
+                </button>
+                <button class="nav-btn" onclick="switchSection('penal', this)">
+                    <span>Penal Code</span>
+                </button>
+            </nav>
 
-        <div class="main-content">
-            <div class="status-bar">
-                <span>SYSTEM STATUS: <span style="color:var(--success-green)">ONLINE</span></span>
-                <span id="liveClock">00:00:00 AM</span>
+            <button class="logout-btn" onclick="location.reload()">Terminate Session</button>
+        </aside>
+
+        <main class="main-view">
+            <div class="top-bar">
+                <div class="status-pill">
+                    <div class="indicator"></div>
+                    <span>NETWORK: SECURE UPLINK ACTIVE</span>
+                </div>
+                <div>
+                    <span id="adminDisplay" style="display:none; color:var(--admin-gold); margin-right: 20px; font-weight: bold;">ADMIN PRIVILEGES</span>
+                    <span id="liveClock">00:00:00 AM</span>
+                </div>
             </div>
-            <div class="content-area">
-                <div class="content-card">
-                    <button id="editBtn" class="edit-btn" onclick="toggleEdit()">EDIT SECTION</button>
+
+            <div class="content-scroll">
+                <div class="section-header">
                     <h1 id="sectionTitle">Call Signs</h1>
-                    <hr style="border: 0; border-top: 1px solid #30363d; margin: 20px 0;">
-                    
-                    <div id="displayArea"></div>
+                    <div class="admin-controls" id="adminControls">
+                        <button class="edit-trigger-btn" onclick="enterEditMode()">Modify Section</button>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div id="displayArea">
+                        Loading encrypted data...
+                    </div>
 
                     <div id="editArea" style="display: none;">
-                        <textarea id="editor"></textarea><br>
-                        <button class="save-btn" onclick="saveContent()">SAVE CHANGES</button>
+                        <textarea id="editor"></textarea>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="save-btn" onclick="saveData()">Save Changes</button>
+                            <button class="save-btn" style="background:#30363d" onclick="exitEditMode()">Cancel</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <script>
+        // --- GLOBAL STATE ---
         let currentRole = 'player';
-        let currentSection = 'callsigns';
+        let activeSection = 'callsigns';
 
-        const defaultData = {
-            callsigns: "1A-01: Chief of Police\n2B-10: Patrol Sergeant",
-            vehicles: "Standard Patrol: Ford Crown Vic\nHigh Speed: Dodge Charger",
-            codes: "10-4: Acknowledged\n10-20: Location",
-            sops: "1. Always signal before turning.\n2. Use sirens only during Code 3."
+        // --- MOCK DATABASE (Syncs to LocalStorage for persistence) ---
+        const initialDatabase = {
+            callsigns: "COMMAND STAFF\n----------------\n1-01 | Chief of Police\n1-02 | Assistant Chief\n\nPATROL UNITS\n----------------\n2-Adam-10 | North District Patrol\n2-Adam-20 | South District Patrol",
+            vehicles: "LEVEL 1: Standard Patrol\n- Ford Crown Victoria (Police Interceptor)\n- Chevy Tahoe (K9/Patrol)\n\nLEVEL 2: High Speed Interdiction\n- Dodge Charger (Unmarked/Marked)\n- Ford Mustang (Heat Unit)",
+            codes: "10-4  | Message Received\n10-7  | Out of Service\n10-8  | In Service\n10-20 | Current Location\n10-99 | Officer in Distress / Panic",
+            sops: "1. DE-ESCALATION: Officers shall attempt to de-escalate whenever possible.\n2. USE OF FORCE: Only that force necessary to effect an arrest shall be used.\n3. PURSUITS: Authorized only for violent felonies.",
+            penal: "FELONY EVADING: $5,000 Fine | 10 Months Jail\nARMED ROBBERY: $10,000 Fine | 20 Months Jail\nATTEMPTED MURDER: $25,000 Fine | 50 Months Jail"
         };
 
-        if(!localStorage.getItem('leoData')) {
-            localStorage.setItem('leoData', JSON.stringify(defaultData));
+        // Initialize Data
+        if (!localStorage.getItem('leo_terminal_data')) {
+            localStorage.setItem('leo_terminal_data', JSON.stringify(initialDatabase));
         }
 
-        // Live Clock Function
-        function updateClock() {
+        // --- CLOCK LOGIC ---
+        function updateTime() {
+            const clock = document.getElementById('liveClock');
             const now = new Date();
-            document.getElementById('liveClock').innerText = now.toLocaleTimeString();
+            clock.innerText = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
-        setInterval(updateClock, 1000);
+        setInterval(updateTime, 1000);
+        updateTime();
 
-        function checkAuth() {
+        // --- AUTHENTICATION ---
+        window.authenticate = () => {
             const role = document.getElementById('roleSelect').value;
             const pass = document.getElementById('passInput').value;
             const error = document.getElementById('error-msg');
             const gate = document.getElementById('gatekeeper');
             const dash = document.getElementById('dashboard');
 
-            if ((role === 'player' && pass === 'ERP-leo') || 
-                (role === 'admin' && pass === 'pal1anth23')) {
-                
+            // Passwords as per your requirement
+            if ((role === 'player' && pass === 'ERP-leo') || (role === 'admin' && pass === 'pal1anth23')) {
                 currentRole = role;
-                gate.style.opacity = "0";
-
+                
+                // Visual Transition
+                gate.style.opacity = '0';
+                
                 setTimeout(() => {
                     gate.style.display = 'none';
                     dash.classList.add('animate-in');
                     
                     if(role === 'admin') {
-                        document.getElementById('adminBadge').style.display = 'inline-block';
-                        document.getElementById('editBtn').style.display = 'block';
+                        document.getElementById('adminDisplay').style.display = 'inline';
+                        document.getElementById('adminControls').style.display = 'block';
                     }
-                    showSection('callsigns');
-                }, 600);
+                    
+                    switchSection('callsigns', document.querySelector('.nav-btn'));
+                }, 800);
             } else {
-                error.innerText = "INVALID ACCESS CODE";
+                error.innerText = "CRITICAL ERROR: ACCESS DENIED - UNAUTHORIZED CREDENTIALS";
+                setTimeout(() => { error.innerText = ""; }, 3000);
             }
-        }
+        };
 
-        function showSection(section) {
-            currentSection = section;
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            
-            const titleMap = {
+        // --- CONTENT SWITCHING ---
+        window.switchSection = (section, btn) => {
+            activeSection = section;
+
+            // Update UI Sidebar
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Update Section Header
+            const titles = {
                 callsigns: "Call Signs",
                 vehicles: "Vehicle Policy",
                 codes: "Radio Codes",
-                sops: "SOPs"
+                sops: "Standard Operating Procedures",
+                penal: "Penal Code"
             };
+            document.getElementById('sectionTitle').innerText = titles[section];
 
-            document.getElementById('sectionTitle').innerText = titleMap[section];
-            const data = JSON.parse(localStorage.getItem('leoData'));
-            document.getElementById('displayArea').innerText = data[section];
-            document.getElementById('displayArea').style.display = 'block';
-            document.getElementById('editArea').style.display = 'none';
+            // Render Content
+            exitEditMode();
+            renderContent();
+        };
+
+        function renderContent() {
+            const data = JSON.parse(localStorage.getItem('leo_terminal_data'));
+            document.getElementById('displayArea').innerText = data[activeSection] || "NO DATA RECORDED";
         }
 
-        function toggleEdit() {
+        // --- ADMIN FUNCTIONS ---
+        window.enterEditMode = () => {
+            const data = JSON.parse(localStorage.getItem('leo_terminal_data'));
             document.getElementById('displayArea').style.display = 'none';
             document.getElementById('editArea').style.display = 'block';
-            document.getElementById('editor').value = JSON.parse(localStorage.getItem('leoData'))[currentSection];
-        }
+            document.getElementById('editor').value = data[activeSection];
+        };
 
-        function saveContent() {
-            const newData = JSON.parse(localStorage.getItem('leoData'));
-            newData[currentSection] = document.getElementById('editor').value;
-            localStorage.setItem('leoData', JSON.stringify(newData));
-            showSection(currentSection);
-        }
+        window.exitEditMode = () => {
+            document.getElementById('displayArea').style.display = 'block';
+            document.getElementById('editArea').style.display = 'none';
+        };
+
+        window.saveData = () => {
+            const newData = JSON.parse(localStorage.getItem('leo_terminal_data'));
+            newData[activeSection] = document.getElementById('editor').value;
+            localStorage.setItem('leo_terminal_data', JSON.stringify(newData));
+            
+            alert("SYSTEM NOTIFICATION: DATABASE COMMITTED SUCCESSFULLY");
+            exitEditMode();
+            renderContent();
+        };
     </script>
 </body>
 </html>
